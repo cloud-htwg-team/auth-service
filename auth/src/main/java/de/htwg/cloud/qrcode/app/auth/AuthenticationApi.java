@@ -62,7 +62,10 @@ public class AuthenticationApi {
                     .body("Required header is missing: " + customAuthHeaderName);
         }
 
+        log.info(headers.toString());
         String idToken = headerValues.get(0);
+
+        log.info(idToken);
 
         return service.verify(idToken);
     }

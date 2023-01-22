@@ -71,7 +71,6 @@ public class AuthenticationService {
                 googleCloudIdentityProviderApiKey
         ));
 
-
         String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new VerifyDto(idToken));
         log.info(json);
 
