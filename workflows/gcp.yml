@@ -1,5 +1,5 @@
 ---
-name: Build and Push qr-code Microservice to GCR
+name: Build and Push auth-code Microservice to GCR
 on:
   push:
     branches: [ master ]
