@@ -1,7 +1,6 @@
 ### Available Endpoints
 
 POST http://localhost:8082/login
-Authorization: Basic dXNlcjpwYXNzd2Q=
 Content-Type: application/json
 {
   "email": "user@qr-regular.com"
