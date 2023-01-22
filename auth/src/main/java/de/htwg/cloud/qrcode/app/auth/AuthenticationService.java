@@ -72,7 +72,7 @@ public class AuthenticationService {
         ));
 
         String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new VerifyDto(idToken));
-        log.info(json);
+//        log.info(json);
 
         HttpRequest historyServicePOSTRequest = HttpRequest.newBuilder()
                 .uri(loginURI)

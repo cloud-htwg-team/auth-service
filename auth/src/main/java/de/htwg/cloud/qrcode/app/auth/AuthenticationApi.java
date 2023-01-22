@@ -35,6 +35,7 @@ public class AuthenticationApi {
 
     @PostMapping(path = "/login", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<UserInfoDto> login(@RequestBody LoginDto dto) throws URISyntaxException, IOException, InterruptedException {
+        log.info("Endpoint: /login. Email: " + dto.email());
         if (dto.email() == null || dto.email().isBlank()
             || dto.password() == null || dto.password().isBlank()
             || dto.tenantId() == null || dto.tenantId().isBlank()) {
@@ -65,7 +66,7 @@ public class AuthenticationApi {
         log.info(headers.toString());
         String idToken = headerValues.get(0);
 
-        log.info(idToken);
+        log.info("Endpoint: /verify. IdToken (shortened): " + idToken.substring(0, 20) + "..." + idToken.substring(idToken.length() - 20) + "  Length: " + idToken.length());
 
         return service.verify(idToken);
     }
