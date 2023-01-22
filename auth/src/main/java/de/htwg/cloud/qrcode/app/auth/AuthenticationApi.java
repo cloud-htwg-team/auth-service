@@ -3,6 +3,8 @@ package de.htwg.cloud.qrcode.app.auth;
 import de.htwg.cloud.qrcode.app.auth.AuthenticationService.LoginDto;
 import de.htwg.cloud.qrcode.app.auth.AuthenticationService.UserInfoDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,18 +12,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @Slf4j
 @RestController
 @RequestMapping
 public class AuthenticationApi {
-    private static final String AUTH_HEADER_ID_TOKEN = "USER_ID_TOKEN";
-
+    private final String customAuthHeaderName;
     private final AuthenticationService service;
 
-    public AuthenticationApi(AuthenticationService service) {
+    public AuthenticationApi(
+            @Value("${auth.header}") String customAuthHeaderName,
+            AuthenticationService service
+    ) {
+        this.customAuthHeaderName = customAuthHeaderName;
         this.service = service;
     }
 
@@ -46,17 +53,18 @@ public class AuthenticationApi {
 
     }
 
-    @PostMapping(path = "/verify")
-    public ResponseEntity<String> verify(@RequestHeader(name = AUTH_HEADER_ID_TOKEN) String idToken) throws IOException, URISyntaxException, InterruptedException {
-        boolean verified = service.verify(idToken);
-
-        if (!verified) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    @PostMapping(path = "/verify", produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> verify(@RequestHeader HttpHeaders headers) throws IOException, URISyntaxException, InterruptedException {
+        List<String> headerValues = headers.get(customAuthHeaderName);
+        if (headerValues == null || headerValues.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Required header is missing: " + customAuthHeaderName);
         }
 
-        return ResponseEntity
-                .ok()
-                .body("ID Token verified.");
+        String idToken = headerValues.get(0);
+
+        return service.verify(idToken);
     }
 
 }

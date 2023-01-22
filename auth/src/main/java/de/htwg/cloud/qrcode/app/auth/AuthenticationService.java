@@ -1,8 +1,12 @@
 package de.htwg.cloud.qrcode.app.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -62,15 +66,14 @@ public class AuthenticationService {
         return new UserInfoDto(responseDto.localId, loginDto.tenantId(), responseDto.idToken);
     }
 
-
-    public boolean verify(String idToken) throws IOException, InterruptedException, URISyntaxException {
+    public ResponseEntity<String> verify(String idToken) throws IOException, InterruptedException, URISyntaxException {
         URI loginURI = new URI("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=%s".formatted(
                 googleCloudIdentityProviderApiKey
         ));
 
 
         String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new VerifyDto(idToken));
-//        log.info(json);
+        log.info(json);
 
         HttpRequest historyServicePOSTRequest = HttpRequest.newBuilder()
                 .uri(loginURI)
@@ -80,11 +83,21 @@ public class AuthenticationService {
                 .build();
 
         HttpResponse<String> response = HTTP_CLIENT.send(historyServicePOSTRequest, HttpResponse.BodyHandlers.ofString());
-//        log.info("Response received: {}", response.body());
+        log.info("Response received: {}", response.body());
 
-        return response.statusCode() == 200;
+        if (response.statusCode() == 400) {
+            VerifyResponseInvalid responseInvalid = OBJECT_MAPPER.readValue(response.body(), VerifyResponseInvalid.class);
+            return ResponseEntity.status(401).body("Message from GCIP: " + responseInvalid.getError().message);
+        }
+
+        if (response.statusCode() != 200) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Response status from GCIP: " + response.statusCode());
+        }
+
+        return ResponseEntity.ok().body("ID Token verified.");
     }
 
+    public record UserInfoDto(String userId, String tenantId, String idToken) {}
 
     private record VerifyDto(String idToken) {}
 
@@ -92,5 +105,15 @@ public class AuthenticationService {
 
     private record LoginUserResponse(String localId, String idToken) {}
 
-    public record UserInfoDto(String userId, String tenantId, String idToken) {}
+    @Data
+    private static class VerifyResponseInvalid {
+        @JsonProperty
+        private Error error;
+
+        private static class Error {
+            @JsonProperty
+            private String message;
+        }
+    }
+
 }
