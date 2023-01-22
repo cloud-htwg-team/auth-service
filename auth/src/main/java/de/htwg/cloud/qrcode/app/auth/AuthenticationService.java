@@ -32,7 +32,7 @@ public class AuthenticationService {
             @Value("${google.cloud.identity-platform.api-key}") String apiKey
     ) {
         googleCloudIdentityProviderApiKey = apiKey;
-        log.info(googleCloudIdentityProviderApiKey);
+        // log.info(googleCloudIdentityProviderApiKey);
     }
 
     public UserInfoDto login(LoginDto loginDto) throws URISyntaxException, IOException, InterruptedException {
