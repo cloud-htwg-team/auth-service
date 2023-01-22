@@ -34,7 +34,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: ./auth
-        tags: $IMAGE_NAME:latest
+        tags: latest
         build-args: |
           "GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY=${{ secrets.GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY }}"
 
