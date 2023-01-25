@@ -19,7 +19,7 @@ public class FirebaseInit {
 
     private final String firebaseSdkKey;
 
-    public FirebaseInit(@Value("${firebase.sdk.key}") String firebaseSdkKey) {
+    public FirebaseInit(@Value("${firebase.admin.sdk.key}") String firebaseSdkKey) {
         this.firebaseSdkKey = firebaseSdkKey;
     }
 
