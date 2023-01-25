@@ -25,7 +25,7 @@ public class FirebaseInit {
 
     @PostConstruct
     public void init() throws IOException {
-        log.info("SDK Key is prepared: {}...{}", firebaseSdkKey.substring(0, 15), firebaseSdkKey.substring(firebaseSdkKey.length()-15));
+        log.info("SDK Key is prepared: {}", firebaseSdkKey);
 
         InputStream serviceAccount = new ByteArrayInputStream(firebaseSdkKey.getBytes(StandardCharsets.UTF_8));
 
