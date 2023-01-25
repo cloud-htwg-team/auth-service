@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -39,12 +40,12 @@ public class AuthenticationService {
         // log.info(googleCloudIdentityProviderApiKey);
     }
 
-    public UserInfoDto login(LoginDto loginDto) throws URISyntaxException, IOException, InterruptedException {
+    public UserInfoDto login(UserSignDto dto) throws URISyntaxException, IOException, InterruptedException {
         URI loginURI = new URI("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=%s".formatted(
                 googleCloudIdentityProviderApiKey
         ));
 
-        String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(loginDto);
+        String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
 //        log.info(json);
 
         HttpRequest historyServicePOSTRequest = HttpRequest.newBuilder()
@@ -63,7 +64,7 @@ public class AuthenticationService {
 
         LoginUserResponse responseDto = OBJECT_MAPPER.readValue(response.body(), LoginUserResponse.class);
 
-        return new UserInfoDto(responseDto.localId, loginDto.tenantId(), responseDto.idToken);
+        return new UserInfoDto(responseDto.localId, dto.tenantId(), responseDto.idToken);
     }
 
     public ResponseEntity<String> verify(String idToken) throws IOException, InterruptedException, URISyntaxException {
@@ -74,14 +75,14 @@ public class AuthenticationService {
         String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new VerifyDto(idToken));
 //        log.info(json);
 
-        HttpRequest historyServicePOSTRequest = HttpRequest.newBuilder()
+        HttpRequest loginRequest = HttpRequest.newBuilder()
                 .uri(loginURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .timeout(Duration.ofSeconds(30))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
-        HttpResponse<String> response = HTTP_CLIENT.send(historyServicePOSTRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = HTTP_CLIENT.send(loginRequest, HttpResponse.BodyHandlers.ofString());
         log.info("Response received: {}", response.body());
 
         if (response.statusCode() == 400) {
@@ -96,11 +97,49 @@ public class AuthenticationService {
         return ResponseEntity.ok().body("ID Token verified.");
     }
 
+    public ResponseEntity<String> signUp(UserSignDto dto) throws IOException, InterruptedException, URISyntaxException {
+        URI loginURI = new URI("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=%s".formatted(
+                googleCloudIdentityProviderApiKey
+        ));
+
+        String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
+//        log.info(json);
+
+        HttpRequest singUpRequest = HttpRequest.newBuilder()
+                .uri(loginURI)
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = HTTP_CLIENT.send(singUpRequest, HttpResponse.BodyHandlers.ofString());
+        log.info("Response received: {}", response.body());
+
+        if (response.statusCode() == 400) {
+            VerifyResponseInvalid responseInvalid = OBJECT_MAPPER.readValue(response.body(), VerifyResponseInvalid.class);
+            return ResponseEntity.status(401).body("Message from GCIP: " + responseInvalid.getError().message);
+        }
+
+        if (response.statusCode() != 200) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Response status from GCIP: " + response.statusCode());
+        }
+
+        LoginUserResponse responseDto = OBJECT_MAPPER.readValue(response.body(), LoginUserResponse.class);
+
+        var user = new UserInfoDto(responseDto.localId, dto.tenantId(), responseDto.idToken);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(user));
+    }
+
     public record UserInfoDto(String userId, String tenantId, String idToken) {}
 
     private record VerifyDto(String idToken) {}
 
-    public record LoginDto(String email, String password, String tenantId) {}
+    // sign up + login operations
+    public record UserSignDto(String email, String password, String tenantId) {}
 
     private record LoginUserResponse(String localId, String idToken) {}
 

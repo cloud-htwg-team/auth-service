@@ -1,7 +1,7 @@
 package de.htwg.cloud.qrcode.app.auth;
 
-import de.htwg.cloud.qrcode.app.auth.AuthenticationService.LoginDto;
 import de.htwg.cloud.qrcode.app.auth.AuthenticationService.UserInfoDto;
+import de.htwg.cloud.qrcode.app.auth.AuthenticationService.UserSignDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -32,9 +32,21 @@ public class AuthenticationApi {
         this.service = service;
     }
 
+    @PostMapping(path = "/sign-up", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> signUp(@RequestBody UserSignDto dto) throws URISyntaxException, IOException, InterruptedException {
+        log.info("Endpoint: /sing-up. Email: " + dto.email());
+        if (dto.email() == null || dto.email().isBlank()
+            || dto.password() == null || dto.password().isBlank()
+            || dto.tenantId() == null || dto.tenantId().isBlank()) {
+            log.info("Bad Data received: {} {} {}", dto.email(), dto.password(), dto.tenantId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        return service.signUp(dto);
+    }
 
     @PostMapping(path = "/login", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserInfoDto> login(@RequestBody LoginDto dto) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<UserInfoDto> login(@RequestBody UserSignDto dto) throws URISyntaxException, IOException, InterruptedException {
         log.info("Endpoint: /login. Email: " + dto.email());
         if (dto.email() == null || dto.email().isBlank()
             || dto.password() == null || dto.password().isBlank()
