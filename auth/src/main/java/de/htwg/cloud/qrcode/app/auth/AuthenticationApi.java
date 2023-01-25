@@ -1,5 +1,7 @@
 package de.htwg.cloud.qrcode.app.auth;
 
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.multitenancy.Tenant;
 import de.htwg.cloud.qrcode.app.auth.AuthenticationService.UserInfoDto;
 import de.htwg.cloud.qrcode.app.auth.AuthenticationService.UserSignDto;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,26 @@ public class AuthenticationApi {
     ) {
         this.customAuthHeaderName = customAuthHeaderName;
         this.service = service;
+    }
+
+
+    @PostMapping(path = "/create-tenant", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tenant> createTenant(@RequestBody CreateTenantDto dto) throws FirebaseAuthException {
+        log.info("Endpoint: /create-tenant. Name: " + dto.name());
+        if (dto.name() == null || dto.name().isBlank()) {
+            log.info("Bad Data received: {}", dto.name());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        Tenant tenant = service.createTenant(dto.name());
+
+        return ResponseEntity.ok().body(tenant);
+    }
+
+    @DeleteMapping(path = "/delete-tenant")
+    public void deleteTenant(@RequestParam(name = "tenantId") String tenantId) throws FirebaseAuthException {
+        log.info("Endpoint: /delete-tenant. tenantId: " + tenantId);
+        service.deleteTenant(tenantId);
     }
 
     @PostMapping(path = "/sign-up", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -83,4 +105,12 @@ public class AuthenticationApi {
         return service.verify(idToken);
     }
 
+
+    @GetMapping(path = "/list-tenants", produces = APPLICATION_JSON_VALUE)
+    public List<Tenant> tenants() throws FirebaseAuthException {
+        log.info("Endpoint: /list-tenants");
+        return service.listTenants();
+    }
+
+    private record CreateTenantDto(String name) {}
 }
