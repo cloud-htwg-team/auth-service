@@ -25,6 +25,9 @@ jobs:
         workload_identity_provider: 'projects/772208948259/locations/global/workloadIdentityPools/github-auth-action-pool/providers/gh-actions-auth-provider'
         service_account: 'github-actions-qrcode@qrcode-374515.iam.gserviceaccount.com'
 
+    - name: Echo Firebase SDK
+      run: echo ${{ secrets.FIREBASE_ADMIN_SDK_KEY }}
+
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push
       uses: docker/build-push-action@v3
