@@ -16,8 +16,10 @@ FROM eclipse-temurin:17-jre-alpine
 ARG GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY
 ENV GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY ${GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY}
 
-#ARG FIREBASE_ADMIN_SDK_KEY
-#ENV FIREBASE_ADMIN_SDK_KEY ${FIREBASE_ADMIN_SDK_KEY}
+ARG FIREBASE_ADMIN_SDK_KEY
+ENV FIREBASE_ADMIN_SDK_KEY ${FIREBASE_ADMIN_SDK_KEY}
+RUN echo $FIREBASE_ADMIN_SDK_KEY
+
 # -- will create the directory, set's path context --> ./ == /opt/app
 WORKDIR /opt/app
 RUN addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
