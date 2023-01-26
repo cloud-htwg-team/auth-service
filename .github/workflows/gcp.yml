@@ -35,7 +35,7 @@ jobs:
 
     - name: cat json
       id: vars
-      run: echo "$(cat ./auth/src/main/resources/serviceAccountKey.json)" >> $GITHUB_OUTPUT
+      run: cat ./auth/src/main/resources/serviceAccountKey.json
 
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push
