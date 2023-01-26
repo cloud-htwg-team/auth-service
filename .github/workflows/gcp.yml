@@ -36,7 +36,7 @@ jobs:
         tags: ${{ env.IMAGE_NAME }}:latest
         build-args: |
           "GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY=${{ secrets.GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY }}"
-# "FIREBASE_ADMIN_SDK_KEY=${{ secrets.FIREBASE_ADMIN_SDK_KEY }}"
+          "FIREBASE_ADMIN_SDK_KEY=${{ secrets.FIREBASE_ADMIN_SDK_KEY }}"
 
     - name: Configure Docker Client
       run: |-
