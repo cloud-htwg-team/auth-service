@@ -25,8 +25,17 @@ jobs:
         workload_identity_provider: 'projects/772208948259/locations/global/workloadIdentityPools/github-auth-action-pool/providers/gh-actions-auth-provider'
         service_account: 'github-actions-qrcode@qrcode-374515.iam.gserviceaccount.com'
 
-    - name: Echo Firebase SDK
-      run: echo ${{ secrets.FIREBASE_ADMIN_SDK_KEY }}
+    - name: create-json
+      id: create-json
+      uses: jsdaniell/create-json@v1.2.2
+      with:
+        name: "serviceAccountKey.json" # proeprty firebase.admin.sdk.json from firebase.admin.sdk.json
+        json: ${{ secrets.FIREBASE_ADMIN_SDK_CREDENTIALS }}
+        dir: './auth/src/main/resources'
+
+    - name: cat json
+      id: vars
+      run: echo "$(cat ./auth/src/main/resources/serviceAccountKey.json)" >> $GITHUB_OUTPUT
 
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push
@@ -36,7 +45,6 @@ jobs:
         tags: ${{ env.IMAGE_NAME }}:latest
         build-args: |
           "GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY=${{ secrets.GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY }}"
-          "FIREBASE_ADMIN_SDK_KEY=${{ secrets.FIREBASE_ADMIN_SDK_KEY }}"
 
     - name: Configure Docker Client
       run: |-
