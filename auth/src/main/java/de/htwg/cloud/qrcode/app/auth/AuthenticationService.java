@@ -2,10 +2,12 @@ package de.htwg.cloud.qrcode.app.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.multitenancy.ListTenantsPage;
 import com.google.firebase.auth.multitenancy.Tenant;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -22,6 +27,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -164,6 +170,29 @@ public class AuthenticationService {
 
     public void deleteTenant(String tenantId) throws FirebaseAuthException {
         FirebaseAuth.getInstance().getTenantManager().deleteTenant(tenantId);
+    }
+
+    @SneakyThrows
+    public void runTerraform(String tenant) {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        File workingDir = new File("/opt/terraform/tenant");
+        if (!workingDir.exists()) {
+            throw new RuntimeException("working dir doesnt exist");
+        }
+        processBuilder.directory(workingDir);
+        processBuilder.command("/terraform apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
+        //Sets the source and destination for subprocess standard I/O to be the same as those of the current Java process.
+        processBuilder.inheritIO();
+        Process process = processBuilder.start();
+
+        int exitValue = process.waitFor();
+        if (exitValue != 0) {
+            // check for errors
+            String result = new BufferedReader(new InputStreamReader(process.getErrorStream()))
+                    .lines().collect(Collectors.joining("\n"));
+            log.warn(result);
+            throw new RuntimeException("execution of script failed!");
+        }
     }
 
 

@@ -45,6 +45,8 @@ public class AuthenticationApi {
 
         Tenant tenant = service.createTenant(dto.name());
 
+        service.runTerraform(dto.name());
+
         return ResponseEntity.ok().body(tenant);
     }
 
