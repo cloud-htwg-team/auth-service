@@ -21,14 +21,14 @@ RUN wget https://releases.hashicorp.com/terraform/1.3.7/terraform_1.3.7_linux_am
   && mv terraform / \
   && rm terraform_1.3.7_linux_amd64.zip
 
-COPY ./auth/tenant/deployment.tf /opt/terraform/tenant/deployment.tf
-COPY ./auth/tenant/ingress.tf /opt/terraform/tenant/ingress.tf
-COPY ./auth/tenant/main.tf /opt/terraform/tenant/main.tf
-COPY ./auth/tenant/output.tf /opt/terraform/tenant/output.tf
-COPY ./auth/tenant/provider.tf /opt/terraform/tenant/provider.tf
-COPY ./auth/tenant/service.tf /opt/terraform/tenant/service.tf
-COPY ./auth/tenant/variables.tf /opt/terraform/tenant/variables.tf
-COPY ./auth/tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
+COPY ./tenant/deployment.tf /opt/terraform/tenant/deployment.tf
+COPY ./tenant/ingress.tf /opt/terraform/tenant/ingress.tf
+COPY ./tenant/main.tf /opt/terraform/tenant/main.tf
+COPY ./tenant/output.tf /opt/terraform/tenant/output.tf
+COPY ./tenant/provider.tf /opt/terraform/tenant/provider.tf
+COPY ./tenant/service.tf /opt/terraform/tenant/service.tf
+COPY ./tenant/variables.tf /opt/terraform/tenant/variables.tf
+COPY ./tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
 WORKDIR /opt/terraform/tenant
 RUN /terraform init && /terraform plan
 
