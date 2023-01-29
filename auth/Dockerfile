@@ -20,16 +20,18 @@ RUN wget https://releases.hashicorp.com/terraform/1.3.7/terraform_1.3.7_linux_am
   && unzip terraform_1.3.7_linux_amd64.zip \
   && mv terraform / \
   && rm terraform_1.3.7_linux_amd64.zip
-COPY /tenant/deployment.tf /opt/terraform/tenant/deployment.tf
-COPY /tenant/ingress.tf /opt/terraform/tenant/ingress.tf
-COPY /tenant/main.tf /opt/terraform/tenant/main.tf
-COPY /tenant/output.tf /opt/terraform/tenant/output.tf
-COPY /tenant/provider.tf /opt/terraform/tenant/provider.tf
-COPY /tenant/service.tf /opt/terraform/tenant/service.tf
-COPY /tenant/variables.tf /opt/terraform/tenant/variables.tf
-COPY /tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
+
+RUN pwd
+COPY ./tenant/deployment.tf /opt/terraform/tenant/deployment.tf
+COPY ./tenant/ingress.tf /opt/terraform/tenant/ingress.tf
+COPY ./tenant/main.tf /opt/terraform/tenant/main.tf
+COPY ./tenant/output.tf /opt/terraform/tenant/output.tf
+COPY ./tenant/provider.tf /opt/terraform/tenant/provider.tf
+COPY ./tenant/service.tf /opt/terraform/tenant/service.tf
+COPY ./tenant/variables.tf /opt/terraform/tenant/variables.tf
+COPY ./tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
 WORKDIR /opt/terraform/tenant
-CMD /terraform init && /terraform plan
+RUN /terraform init && /terraform plan
 
 # -- will create the directory, set's path context --> ./ == /opt/app
 WORKDIR /opt/app
