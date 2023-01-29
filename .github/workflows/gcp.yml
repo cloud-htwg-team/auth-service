@@ -39,6 +39,9 @@ jobs:
         json: ${{ secrets.GOOGLE_ACC_AUTH }}
         dir: './auth/tenant'
 
+    - name: Cat Temporary Json
+      run: cat ./auth/tenant/application_default_credentials.json
+
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push
       uses: docker/build-push-action@v3
