@@ -175,12 +175,7 @@ public class AuthenticationService {
     @SneakyThrows
     public void runTerraform(String tenant) {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        File workingDir = new File("/opt/terraform/tenant");
-        if (!workingDir.exists()) {
-            throw new RuntimeException("working dir doesnt exist");
-        }
-        processBuilder.directory(workingDir);
-        processBuilder.command("/terraform apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
+        processBuilder.command("/terraform -chdir=\"/opt/terraform/tenant/\" apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
         //Sets the source and destination for subprocess standard I/O to be the same as those of the current Java process.
         processBuilder.inheritIO();
         Process process = processBuilder.start();

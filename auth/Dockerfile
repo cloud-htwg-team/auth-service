@@ -34,12 +34,12 @@ RUN /terraform init && /terraform plan
 
 # -- will create the directory, set's path context --> ./ == /opt/app
 WORKDIR /opt/app
-RUN addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
+RUN #addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
 # there is a command 'ADD' but 'COPY" is prefered
 COPY --from=builder /build/build/libs/auth-microservice.jar ./auth-microservice.jar
 
-RUN chown -R javauser:javauser .
-USER javauser
+#RUN chown -R javauser:javauser .
+#USER javauser
 
 ENTRYPOINT ["java", "-jar", "./auth-microservice.jar"]
 
