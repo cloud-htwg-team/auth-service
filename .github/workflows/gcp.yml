@@ -25,15 +25,19 @@ jobs:
         workload_identity_provider: 'projects/772208948259/locations/global/workloadIdentityPools/github-auth-action-pool/providers/gh-actions-auth-provider'
         service_account: 'github-actions-qrcode@qrcode-374515.iam.gserviceaccount.com'
 
-    - name: Create Json
+    - name: Create Firebase Credentials Json
       uses: jsdaniell/create-json@v1.2.2
       with:
         name: "serviceAccountKey.json" # proeprty firebase.admin.sdk.json from firebase.admin.sdk.json
         json: ${{ secrets.FIREBASE_ADMIN_SDK_CREDENTIALS }}
         dir: './auth/src/main/resources'
-
-    - name: Cat Temporary Json
-      run: cat ./auth/src/main/resources/serviceAccountKey.json
+    
+    - name: Create Json GC Account
+      uses: jsdaniell/create-json@v1.2.2
+      with:
+        name: "application_default_credentials.json"
+        json: ${{ secrets.GOOGLE_ACC_AUTH }}
+        dir: './auth/tenant'
 
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push

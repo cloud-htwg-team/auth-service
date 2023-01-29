@@ -42,3 +42,6 @@ gha-creds-*.json
 # Ignore yml file with secret
 /src/main/resources/application-secret.yml
 /src/main/resources/serviceAccountKey.json
+/tenant/application_default_credentials.json
+/tenant/qrcode-374515-ac5ffd01272d.json
+/tenant/Dockerfile

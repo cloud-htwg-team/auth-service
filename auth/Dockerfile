@@ -16,6 +16,23 @@ FROM eclipse-temurin:17-jre-alpine
 ARG GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY
 ENV GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY ${GOOGLE_CLOUD_IDENTITY_PLATFORM_API_KEY}
 
+RUN wget https://releases.hashicorp.com/terraform/1.3.7/terraform_1.3.7_linux_amd64.zip \
+  && unzip terraform_1.3.7_linux_amd64.zip \
+  && mv terraform / \
+  && rm terraform_1.3.7_linux_amd64.zip
+COPY /tenant/deployment.tf /opt/terraform/tenant/deployment.tf
+COPY /tenant/ingress.tf /opt/terraform/tenant/ingress.tf
+COPY /tenant/main.tf /opt/terraform/tenant/main.tf
+COPY /tenant/output.tf /opt/terraform/tenant/output.tf
+COPY /tenant/provider.tf /opt/terraform/tenant/provider.tf
+COPY /tenant/service.tf /opt/terraform/tenant/service.tf
+COPY /tenant/variables.tf /opt/terraform/tenant/variables.tf
+COPY /tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
+COPY /tenant/qrcode-374515-ac5ffd01272d.json /opt/terraform/tenant/qrcode-374515-ac5ffd01272d.json
+
+WORKDIR /opt/terraform/tenant
+CMD /terraform init && /terraform plan
+
 # -- will create the directory, set's path context --> ./ == /opt/app
 WORKDIR /opt/app
 RUN addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
