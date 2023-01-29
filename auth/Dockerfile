@@ -28,8 +28,6 @@ COPY /tenant/provider.tf /opt/terraform/tenant/provider.tf
 COPY /tenant/service.tf /opt/terraform/tenant/service.tf
 COPY /tenant/variables.tf /opt/terraform/tenant/variables.tf
 COPY /tenant/application_default_credentials.json /opt/terraform/tenant/application_default_credentials.json
-COPY /tenant/qrcode-374515-ac5ffd01272d.json /opt/terraform/tenant/qrcode-374515-ac5ffd01272d.json
-
 WORKDIR /opt/terraform/tenant
 CMD /terraform init && /terraform plan
 
