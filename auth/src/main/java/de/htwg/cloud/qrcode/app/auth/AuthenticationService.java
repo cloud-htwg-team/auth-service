@@ -185,10 +185,11 @@ public class AuthenticationService {
         HttpRequest applyRequest = HttpRequest.newBuilder()
                 .uri(terraformServiceURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(60))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
+        log.info("Calling terraform service...");
         HttpResponse<String> response = HTTP_CLIENT.send(applyRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
             log.warn("Tenant service response status: {}", response.statusCode());
@@ -196,6 +197,7 @@ public class AuthenticationService {
             return false;
         }
 
+        log.info("Terraform applied.");
         return true;
     }
 
