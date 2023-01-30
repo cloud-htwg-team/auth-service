@@ -33,7 +33,7 @@ jobs:
         dir: './auth/src/main/resources'
     
     # Special Build step with a custom action for passing down GitHub's secret
-    - name: Build and push
+    - name: Build Docker image
       uses: docker/build-push-action@v3
       with:
         context: ./auth
