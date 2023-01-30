@@ -174,14 +174,15 @@ public class AuthenticationService {
 
     @SneakyThrows
     public void runTerraform(String tenant) {
+        log.info("Starting process...");
         ProcessBuilder processBuilder = new ProcessBuilder();
-//        processBuilder.command("/terraform", "-chdir=\"/opt/terraform/tenant/\"", "apply", "-auto-approve", "-var=\"namespace=%s\"".formatted(tenant));
         processBuilder.command("sh", "-c", "/terraform apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
         processBuilder.directory(new File("/opt/terraform/tenant"));
         //Sets the source and destination for subprocess standard I/O to be the same as those of the current Java process.
         processBuilder.inheritIO();
         Process process = processBuilder.start();
 
+        log.info("Waiting for end...");
         int exitValue = process.waitFor();
         if (exitValue != 0) {
             // check for errors
@@ -190,6 +191,7 @@ public class AuthenticationService {
             log.warn(result);
             throw new RuntimeException("execution of script failed!");
         }
+        log.info("Done.");
     }
 
 
