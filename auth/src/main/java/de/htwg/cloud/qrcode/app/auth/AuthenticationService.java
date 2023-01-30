@@ -43,12 +43,16 @@ public class AuthenticationService {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     private final String googleCloudIdentityProviderApiKey;
+    private final String terraformServiceServer;
+    private final String terraformServicePort;
 
     public AuthenticationService(
-            @Value("${google.cloud.identity-platform.api-key}") String apiKey
-    ) {
-        googleCloudIdentityProviderApiKey = apiKey;
-        // log.info(googleCloudIdentityProviderApiKey);
+            @Value("${google.cloud.identity-platform.api-key}") String apiKey,
+            @Value("${terraform.service.server}")  String terraformServiceServer,
+            @Value("${terraform.service.port}")  String terraformServicePort) {
+        this.googleCloudIdentityProviderApiKey = apiKey;
+        this.terraformServiceServer = terraformServiceServer;
+        this.terraformServicePort = terraformServicePort;
     }
 
     public Tenant createTenant(String tenantName) throws FirebaseAuthException {
@@ -173,25 +177,30 @@ public class AuthenticationService {
     }
 
     @SneakyThrows
-    public void runTerraform(String tenant) {
-        log.info("Starting process...");
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("sh", "-c", "/terraform apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
-        processBuilder.directory(new File("/opt/terraform/tenant"));
-        //Sets the source and destination for subprocess standard I/O to be the same as those of the current Java process.
-        processBuilder.inheritIO();
-        Process process = processBuilder.start();
+    public boolean runTerraform(String tenant) {
+        URI terraformServiceURI = new URI("http://%s:%s/secure/apply".formatted(
+                terraformServiceServer,
+                terraformServicePort
+        ));
 
-        log.info("Waiting for end...");
-        int exitValue = process.waitFor();
-        if (exitValue != 0) {
-            // check for errors
-            String result = new BufferedReader(new InputStreamReader(process.getErrorStream()))
-                    .lines().collect(Collectors.joining("\n"));
-            log.warn(result);
-            throw new RuntimeException("execution of script failed!");
+        String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new TerraformApplyDto(tenant));
+//        log.info(json);
+
+        HttpRequest applyRequest = HttpRequest.newBuilder()
+                .uri(terraformServiceURI)
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = HTTP_CLIENT.send(applyRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            log.warn("Tenant service response status: {}", response.statusCode());
+            log.warn(response.body());
+            return false;
         }
-        log.info("Done.");
+
+        return true;
     }
 
 
@@ -203,6 +212,8 @@ public class AuthenticationService {
     public record UserSignDto(String email, String password, String tenantId) {}
 
     private record LoginUserResponse(String localId, String idToken) {}
+
+    private record TerraformApplyDto(String tenantName) {}
 
     @Data
     private static class VerifyResponseInvalid {

@@ -8,6 +8,11 @@ spring:
 auth:
   header: Id-Token
 
+terraform:
+  service:
+    server: 127.0.0.1
+    port: 8084
+
 firebase:
   admin:
     sdk:
