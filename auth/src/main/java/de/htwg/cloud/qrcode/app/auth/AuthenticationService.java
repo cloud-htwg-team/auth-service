@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -174,7 +175,9 @@ public class AuthenticationService {
     @SneakyThrows
     public void runTerraform(String tenant) {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("/terraform", "-chdir=\"/opt/terraform/tenant/\"", "apply", "-auto-approve", "-var=\"namespace=%s\"".formatted(tenant));
+//        processBuilder.command("/terraform", "-chdir=\"/opt/terraform/tenant/\"", "apply", "-auto-approve", "-var=\"namespace=%s\"".formatted(tenant));
+        processBuilder.command("sh", "-c", "/terraform apply -auto-approve -var=\"namespace=%s\"".formatted(tenant));
+        processBuilder.directory(new File("/opt/terraform/tenant"));
         //Sets the source and destination for subprocess standard I/O to be the same as those of the current Java process.
         processBuilder.inheritIO();
         Process process = processBuilder.start();
