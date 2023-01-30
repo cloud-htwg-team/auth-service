@@ -32,16 +32,6 @@ jobs:
         json: ${{ secrets.FIREBASE_ADMIN_SDK_CREDENTIALS }}
         dir: './auth/src/main/resources'
     
-    - name: Create Json GC Account
-      uses: jsdaniell/create-json@v1.2.2
-      with:
-        name: "application_default_credentials.json"
-        json: ${{ secrets.GOOGLE_ACC_AUTH }}
-        dir: './auth/tenant'
-
-    - name: Cat Temporary Json
-      run: cat ./auth/tenant/application_default_credentials.json
-
     # Special Build step with a custom action for passing down GitHub's secret
     - name: Build and push
       uses: docker/build-push-action@v3

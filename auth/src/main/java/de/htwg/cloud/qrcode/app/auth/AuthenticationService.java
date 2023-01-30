@@ -15,10 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -27,7 +24,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -177,7 +173,7 @@ public class AuthenticationService {
     }
 
     @SneakyThrows
-    public boolean runTerraform(String tenant) {
+    public boolean runTerraformApply(String tenant) {
         URI terraformServiceURI = new URI("http://%s:%s/secure/apply".formatted(
                 terraformServiceServer,
                 terraformServicePort

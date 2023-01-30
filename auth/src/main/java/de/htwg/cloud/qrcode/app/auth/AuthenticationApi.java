@@ -45,7 +45,7 @@ public class AuthenticationApi {
 
         Tenant tenant = service.createTenant(dto.name());
 
-        boolean success = service.runTerraform(dto.name());
+        boolean success = service.runTerraformApply(dto.name());
         if (!success) {
             throw new RuntimeException("Terraform apply has failed");
         }
