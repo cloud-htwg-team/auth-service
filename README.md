@@ -2,7 +2,7 @@
 
 ### Tenants Endpoints
 
-- Create Tentant
+- Create Tentant (with or without provisioning resources with Terraform)
 ```
 Request
 
@@ -10,6 +10,7 @@ POST http://localhost:8082/create-tenant
 Content-Type: application/json
 {
 	"name": "silver"
+  "withResources": true
 }
 
 
