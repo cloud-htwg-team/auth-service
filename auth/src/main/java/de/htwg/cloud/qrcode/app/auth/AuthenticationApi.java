@@ -37,7 +37,7 @@ public class AuthenticationApi {
 
     @PostMapping(path = "/create-tenant", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Tenant> createTenant(@RequestBody CreateTenantDto dto) throws FirebaseAuthException {
-        log.info("Endpoint: /create-tenant. Name: " + dto.name());
+        log.info("Endpoint: /create-tenant. Name: " + dto.name() +"; withResources: " + dto.withResources());
         if (dto.name() == null || dto.name().isBlank()) {
             log.info("Bad Data received: {}", dto.name());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -45,9 +45,12 @@ public class AuthenticationApi {
 
         Tenant tenant = service.createTenant(dto.name());
 
-        boolean success = service.runTerraformApply(dto.name());
-        if (!success) {
-            throw new RuntimeException("Terraform apply has failed");
+        if (dto.withResources()) {
+            log.info("Request was call with 'withResources' flag.");
+            boolean success = service.runTerraformApply(dto.name());
+            if (!success) {
+                throw new RuntimeException("Terraform apply has failed");
+            }
         }
 
         return ResponseEntity.ok().body(tenant);
@@ -117,5 +120,5 @@ public class AuthenticationApi {
         return service.listTenants();
     }
 
-    private record CreateTenantDto(String name) {}
+    private record CreateTenantDto(String name, boolean withResources) {}
 }
