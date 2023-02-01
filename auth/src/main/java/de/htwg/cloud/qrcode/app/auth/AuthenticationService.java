@@ -185,7 +185,7 @@ public class AuthenticationService {
         HttpRequest applyRequest = HttpRequest.newBuilder()
                 .uri(terraformServiceURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .timeout(Duration.ofSeconds(60))
+                .timeout(Duration.ofSeconds(600))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
