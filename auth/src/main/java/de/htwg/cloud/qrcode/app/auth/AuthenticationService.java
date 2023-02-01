@@ -24,6 +24,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -44,8 +45,8 @@ public class AuthenticationService {
 
     public AuthenticationService(
             @Value("${google.cloud.identity-platform.api-key}") String apiKey,
-            @Value("${terraform.service.server}")  String terraformServiceServer,
-            @Value("${terraform.service.port}")  String terraformServicePort) {
+            @Value("${terraform.service.server}") String terraformServiceServer,
+            @Value("${terraform.service.port}") String terraformServicePort) {
         this.googleCloudIdentityProviderApiKey = apiKey;
         this.terraformServiceServer = terraformServiceServer;
         this.terraformServicePort = terraformServicePort;
@@ -173,7 +174,7 @@ public class AuthenticationService {
     }
 
     @SneakyThrows
-    public boolean runTerraformApply(String tenant) {
+    public void runTerraformApply(String tenant) {
         URI terraformServiceURI = new URI("http://%s:%s/secure/apply".formatted(
                 terraformServiceServer,
                 terraformServicePort
@@ -189,16 +190,16 @@ public class AuthenticationService {
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
-        log.info("Calling terraform service...");
-        HttpResponse<String> response = HTTP_CLIENT.send(applyRequest, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) {
-            log.warn("Tenant service response status: {}", response.statusCode());
-            log.warn(response.body());
-            return false;
-        }
-
-        log.info("Terraform applied.");
-        return true;
+        log.info("[ASYNC] Calling terraform service ...");
+        CompletableFuture<HttpResponse<String>> response = HTTP_CLIENT.sendAsync(applyRequest, HttpResponse.BodyHandlers.ofString());
+        response.whenComplete((stringHttpResponse, throwable) -> {
+            if (stringHttpResponse.statusCode() != 200) {
+                log.warn("Tenant service response status: {}", stringHttpResponse.statusCode());
+                log.warn(stringHttpResponse.body());
+            } else {
+                log.info("Terraform applied.");
+            }
+        });
     }
 
 

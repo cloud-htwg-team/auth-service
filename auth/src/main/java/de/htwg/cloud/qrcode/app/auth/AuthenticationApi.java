@@ -47,10 +47,7 @@ public class AuthenticationApi {
 
         if (dto.withResources()) {
             log.info("Request was call with 'withResources' flag.");
-            boolean success = service.runTerraformApply(dto.name());
-            if (!success) {
-                throw new RuntimeException("Terraform apply has failed");
-            }
+            service.runTerraformApply(dto.name());
         }
 
         return ResponseEntity.ok().body(tenant);
