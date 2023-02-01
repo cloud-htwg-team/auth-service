@@ -74,7 +74,7 @@ public class AuthenticationService {
         HttpRequest singUpRequest = HttpRequest.newBuilder()
                 .uri(loginURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(180))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
@@ -111,7 +111,7 @@ public class AuthenticationService {
         HttpRequest historyServicePOSTRequest = HttpRequest.newBuilder()
                 .uri(loginURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(180))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
@@ -138,7 +138,7 @@ public class AuthenticationService {
         HttpRequest loginRequest = HttpRequest.newBuilder()
                 .uri(loginURI)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(180))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
