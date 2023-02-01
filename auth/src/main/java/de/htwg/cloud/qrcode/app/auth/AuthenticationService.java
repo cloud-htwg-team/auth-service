@@ -173,8 +173,38 @@ public class AuthenticationService {
         FirebaseAuth.getInstance().getTenantManager().deleteTenant(tenantId);
     }
 
+
     @SneakyThrows
-    public void runTerraformApply(String tenant) {
+    public boolean runTerraformApply(String tenant) {
+        URI terraformServiceURI = new URI("http://%s:%s/secure/apply".formatted(
+                terraformServiceServer,
+                terraformServicePort
+        ));
+
+        String json = OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new TerraformApplyDto(tenant));
+//        log.info(json);
+
+        HttpRequest applyRequest = HttpRequest.newBuilder()
+                .uri(terraformServiceURI)
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .timeout(Duration.ofSeconds(600))
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        log.info("[Sync] Calling terraform service...");
+        HttpResponse<String> response = HTTP_CLIENT.send(applyRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            log.warn("Tenant service response status: {}", response.statusCode());
+            log.warn(response.body());
+            return false;
+        }
+
+        log.info("Terraform applied.");
+        return true;
+    }
+
+    @SneakyThrows
+    public void runTerraformApplyAsync(String tenant) {
         URI terraformServiceURI = new URI("http://%s:%s/secure/apply".formatted(
                 terraformServiceServer,
                 terraformServicePort
