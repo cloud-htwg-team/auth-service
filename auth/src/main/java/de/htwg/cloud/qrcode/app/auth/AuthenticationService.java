@@ -59,7 +59,7 @@ public class AuthenticationService {
                 .setPasswordSignInAllowed(true);
 
         Tenant tenant = FirebaseAuth.getInstance().getTenantManager().createTenant(request);
-        System.out.println("Created tenant: " + tenant.getTenantId());
+        log.info("Created tenant: " + tenant.getTenantId());
 
         return tenant;
     }
