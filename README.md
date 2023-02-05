@@ -1,4 +1,7 @@
-# Available Endpoints
+# Authentication microservice
+- `JAVA 17 + SpringBoot 3`
+
+## Usage
 
 ### Tenants Endpoints
 
@@ -90,7 +93,7 @@ Response
 }
 ```
 
-- Verify User's token `// internal endpoint which trafic of /secure/ is routed to`
+- Verify User's token
 ```
 Request
 
